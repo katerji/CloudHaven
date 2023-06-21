@@ -27,7 +27,7 @@ func LoginHandler(c *gin.Context) {
 		sendBadRequest(c)
 		return
 	}
-	authService := service.AuthService{}
+	authService := service.GetAuthService()
 	authInput := input.AuthInput{
 		Email:    request.Email,
 		Password: request.Password,
@@ -37,7 +37,7 @@ func LoginHandler(c *gin.Context) {
 		sendErrorMessage(c, err.Error())
 		return
 	}
-	jwtService := service.JWTService{}
+	jwtService := service.GetJwtService()
 	token, err := jwtService.CreateJwt(user)
 	if err != nil {
 		sendErrorMessage(c, "")

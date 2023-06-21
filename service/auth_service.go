@@ -10,22 +10,22 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type AuthService struct{}
+type authService struct{}
 
-func (service AuthService) Register(input input.AuthInput) (int, error) {
+func (service authService) Register(input input.AuthInput) (int, error) {
 	password, err := hashPassword(input.Password)
 	if err != nil {
 		return 0, err
 	}
 	input.Password = password
-	return db.GetDbInstance().Insert(query.InsertUserQuery, input.Email, input.Password)
+	return db.GetDbInstance().Insert(query.InsertUserQuery, input.Email, input.Name, input.Password)
 }
 
-func (service AuthService) Login(input input.AuthInput) (model.User, error) {
+func (service authService) Login(input input.AuthInput) (model.User, error) {
 	result := queryrow.UserQueryRow{}
 	client := db.GetDbInstance()
 	row := client.QueryRow(query.GetUserByEmailQuery, input.Email)
-	err := row.Scan(&result.ID, &result.Email, &result.Password)
+	err := row.Scan(&result.ID, &result.Name, &result.Email, &result.Password)
 	if err != nil {
 		return model.User{}, errors.New("email does not exist")
 	}
@@ -36,6 +36,7 @@ func (service AuthService) Login(input input.AuthInput) (model.User, error) {
 
 	return model.User{
 		ID:    result.ID,
+		Name:  result.Name,
 		Email: result.Email,
 	}, nil
 }

@@ -22,7 +22,7 @@ func RefreshTokenHandler(c *gin.Context) {
 		sendErrorMessage(c, "Missing refresh token.")
 		return
 	}
-	jwtService := service.JWTService{}
+	jwtService := service.GetJwtService()
 	user, err := jwtService.VerifyRefreshToken(refreshToken)
 	if err != nil {
 		sendErrorMessage(c, "Invalid refresh token.")

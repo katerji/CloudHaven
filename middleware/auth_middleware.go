@@ -10,7 +10,7 @@ func GetAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authorization := c.GetHeader("Authorization")
 		token := strings.ReplaceAll(authorization, "Bearer ", "")
-		jwtService := service.JWTService{}
+		jwtService := service.GetJwtService()
 		userObject, err := jwtService.VerifyToken(token)
 		if err != nil {
 			c.AbortWithStatusJSON(401, gin.H{

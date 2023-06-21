@@ -1,16 +1,20 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/katerji/UserAuthKit/crons"
 	"github.com/katerji/UserAuthKit/db"
 	"github.com/katerji/UserAuthKit/envs"
 	"github.com/katerji/UserAuthKit/handler"
 	"github.com/katerji/UserAuthKit/middleware"
+	"github.com/robfig/cron"
 )
 
 func main() {
 	initEnv()
 	initDB()
+	startCron()
 	initWebServer()
 }
 
@@ -45,4 +49,13 @@ func initWebServer() {
 
 func initEnv() {
 	envs.InitEnv()
+}
+
+func startCron() {
+	c := cron.New()
+	err := c.AddFunc(crons.SyncFilesCronExpression, crons.SyncFiles)
+	if err != nil {
+		fmt.Println(err)
+	}
+	c.Start()
 }
