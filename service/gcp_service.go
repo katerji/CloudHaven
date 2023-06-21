@@ -12,7 +12,7 @@ import (
 type gcpService struct{}
 
 func (service *gcpService) GetObjectSize(path string) (int64, bool) {
-	object, err := gcp.GetCloudClient().Object(path).NewReader(context.Background())
+	object, err := gcp.GetBucketClient().Object(path).NewReader(context.Background())
 	if err != nil {
 		fmt.Println(err)
 		return 0, false
@@ -21,7 +21,7 @@ func (service *gcpService) GetObjectSize(path string) (int64, bool) {
 }
 
 func (service *gcpService) ListUserObjects(userID int) ([]model.File, bool) {
-	objectIterator := gcp.GetCloudClient().Objects(context.Background(), getUserQuery(userID))
+	objectIterator := gcp.GetBucketClient().Objects(context.Background(), getUserQuery(userID))
 	var files []model.File
 	for {
 		objectAttrs, err := objectIterator.Next()

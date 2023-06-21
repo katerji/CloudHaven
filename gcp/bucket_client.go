@@ -7,24 +7,24 @@ import (
 
 const bucket = "cloudhaven-storage"
 
-type CloudClient struct {
+type bucketClient struct {
 	*storage.BucketHandle
 }
 
-var instance *CloudClient
+var instance *bucketClient
 
-func GetCloudClient() *CloudClient {
+func GetBucketClient() *bucketClient {
 	if instance == nil {
 		instance = initClient()
 	}
 	return instance
 }
 
-func initClient() *CloudClient {
+func initClient() *bucketClient {
 	client, err := storage.NewClient(context.Background())
 	if err != nil {
 		panic(err)
 	}
 
-	return &CloudClient{client.Bucket(bucket)}
+	return &bucketClient{client.Bucket(bucket)}
 }
