@@ -3,11 +3,13 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/katerji/UserAuthKit/db"
+	"github.com/katerji/UserAuthKit/envs"
 	"github.com/katerji/UserAuthKit/handler"
 	"github.com/katerji/UserAuthKit/middleware"
 )
 
 func main() {
+	initEnv()
 	initDB()
 	initWebServer()
 }
@@ -39,4 +41,8 @@ func initWebServer() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func initEnv() {
+	envs.InitEnv()
 }

@@ -17,7 +17,7 @@ type Env struct {
 }
 
 func newEnv() *Env {
-	loadEnv()
+	InitEnv()
 	return &Env{
 		jWTToken:        os.Getenv("JWT_SECRET"),
 		jWTRefreshToken: os.Getenv("JWT_REFRESH_SECRET"),
@@ -66,7 +66,7 @@ func GetInstance() *Env {
 	return instance
 }
 
-func loadEnv() {
+func InitEnv() {
 	err := godotenv.Load()
 	if err != nil {
 		execPath, err := os.Executable()
