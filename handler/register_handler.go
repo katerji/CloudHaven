@@ -16,6 +16,7 @@ const (
 type RegisterRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	Name     string `json:"name"`
 }
 
 func RegisterHandler(c *gin.Context) {
@@ -28,8 +29,9 @@ func RegisterHandler(c *gin.Context) {
 	registerUserInput := input.AuthInput{
 		Email:    request.Email,
 		Password: request.Password,
+		Name:     request.Name,
 	}
-	userService := service.AuthService{}
+	userService := service.GetAuthService()
 	_, err = userService.Register(registerUserInput)
 	if err != nil {
 		sendErrorMessage(c, errorMessageEmailAlreadyExists)

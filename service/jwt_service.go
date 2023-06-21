@@ -13,24 +13,24 @@ import (
 	"time"
 )
 
-type JWTService struct{}
+type jwtService struct{}
 
 type customJWTClaims struct {
 	UserOutput model.UserOutput `json:"user"`
 	ExpiresAt  int64            `json:"expires_at"`
 }
 
-func (jwtService JWTService) VerifyToken(token string) (model.User, error) {
+func (jwtService jwtService) VerifyToken(token string) (model.User, error) {
 	jwtSecret := envs.GetInstance().GetJWTToken()
 	return jwtService.validateToken(token, jwtSecret)
 }
 
-func (jwtService JWTService) VerifyRefreshToken(token string) (model.User, error) {
+func (jwtService jwtService) VerifyRefreshToken(token string) (model.User, error) {
 	jwtSecret := envs.GetInstance().GetJWTRefreshToken()
 	return jwtService.validateToken(token, jwtSecret)
 }
 
-func (jwtService JWTService) validateToken(token, jwtSecret string) (model.User, error) {
+func (jwtService jwtService) validateToken(token, jwtSecret string) (model.User, error) {
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -59,7 +59,7 @@ func (jwtService JWTService) validateToken(token, jwtSecret string) (model.User,
 	return model.User{}, errors.New("invalid token")
 }
 
-func (jwtService JWTService) CreateJwt(user model.User) (string, error) {
+func (jwtService jwtService) CreateJwt(user model.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user":       user.ToOutput(),
 		"expires_at": getJWTExpiry(),
@@ -72,7 +72,7 @@ func (jwtService JWTService) CreateJwt(user model.User) (string, error) {
 	return tokenString, nil
 }
 
-func (jwtService JWTService) CreateRefreshJwt(user model.User) (string, error) {
+func (jwtService jwtService) CreateRefreshJwt(user model.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user":       user.ToOutput(),
 		"expires_at": getJWTRefreshExpiry(),
