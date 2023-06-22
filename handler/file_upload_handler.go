@@ -27,7 +27,7 @@ func FileUploadHandler(c *gin.Context) {
 		sendError(c)
 		return
 	}
-	user := c.MustGet("user").(model.User)
+	user := getUserFromContext(c)
 	fileInput := model.FileInput{
 		Name:        fileHeader.Filename,
 		OwnerID:     user.ID,

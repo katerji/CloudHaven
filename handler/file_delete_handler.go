@@ -21,7 +21,7 @@ func FileDeleteHandler(c *gin.Context) {
 		sendBadRequestWithMessage(c, "Name is required")
 		return
 	}
-	user := c.MustGet("user").(model.User)
+	user := getUserFromContext(c)
 	fileInput := model.FileInput{
 		Name:    request.Name,
 		OwnerID: user.ID,

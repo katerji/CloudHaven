@@ -12,7 +12,7 @@ type UserInfoResponse struct {
 }
 
 func UserInfoHandler(c *gin.Context) {
-	user := c.MustGet("user").(model.User)
+	user := getUserFromContext(c)
 	response := UserInfoResponse{
 		User: user.ToOutput(),
 	}

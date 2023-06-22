@@ -43,6 +43,7 @@ func initWebServer() {
 
 	api.POST(handler.FilePath, handler.FileUploadHandler)
 	api.DELETE(handler.FilePath, handler.FileDeleteHandler)
+	api.POST(handler.FileShareLinkPath, handler.FileShareLinkHandler)
 
 	err := router.Run(":85")
 	if err != nil {
