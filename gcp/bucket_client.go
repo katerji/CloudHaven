@@ -3,28 +3,51 @@ package gcp
 import (
 	"cloud.google.com/go/storage"
 	"context"
+	"time"
 )
 
 const bucket = "cloudhaven-storage"
 
-type bucketClient struct {
-	*storage.BucketHandle
+type storageClient struct {
+	client *storage.Client
+	bucket *storage.BucketHandle
 }
 
-var instance *bucketClient
+var storageInstance *storageClient
 
-func GetBucketClient() *bucketClient {
-	if instance == nil {
-		instance = initClient()
+func GetBucketClient() *storage.BucketHandle {
+	if storageInstance == nil {
+		storageInstance = initGCS()
 	}
-	return instance
+	return storageInstance.bucket
 }
 
-func initClient() *bucketClient {
+func GetBucketName() string {
+	return bucket
+}
+
+func GetDefaultSignOptions() *storage.SignedURLOptions {
+	return &storage.SignedURLOptions{
+		Method:  "GET",
+		Expires: time.Now().Add(24 * time.Hour),
+	}
+}
+
+func GetStorageClient() *storage.Client {
+	if storageInstance == nil {
+		storageInstance = initGCS()
+	}
+	return storageInstance.client
+}
+
+func initGCS() *storageClient {
 	client, err := storage.NewClient(context.Background())
 	if err != nil {
 		panic(err)
 	}
 
-	return &bucketClient{client.Bucket(bucket)}
+	return &storageClient{
+		client: client,
+		bucket: client.Bucket(bucket),
+	}
 }

@@ -1,7 +1,6 @@
 package crons
 
 import (
-	"fmt"
 	"github.com/katerji/UserAuthKit/service"
 )
 
@@ -9,7 +8,6 @@ import (
 const SyncFilesCronExpression = "@every 5m"
 
 func SyncFiles() {
-	fmt.Println("?")
 	userService := service.GetUserService()
 	users := userService.GetUsers()
 	for userID, _ := range users {
