@@ -40,6 +40,7 @@ func initWebServer() {
 	api.Use(middleware.GetAuthMiddleware())
 
 	api.GET(handler.UserInfoPath, handler.UserInfoHandler)
+	api.POST(handler.UploadFilePath, handler.UploadFileHandler)
 
 	err := router.Run(":85")
 	if err != nil {

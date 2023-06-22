@@ -41,3 +41,18 @@ func (service *gcpService) ListUserObjects(userID int) ([]model.File, bool) {
 func getUserQuery(userID int) *storage.Query {
 	return &storage.Query{Prefix: fmt.Sprintf("%d/", userID)}
 }
+
+func (service *gcpService) DeleteObject(file model.File) bool {
+	return gcp.GetBucketClient().Object(file.GetPath()).Delete(context.Background()) == nil
+}
+
+func (service *gcpService) CreateObject(fileInput model.FileInput) bool {
+	object := gcp.GetBucketClient().Object(fileInput.GetPath())
+	writer := object.NewWriter(context.Background())
+	writer.ContentType = fileInput.ContentType
+	_, err := writer.Write(fileInput.Content)
+	if err != nil {
+		return false
+	}
+	return writer.Close() == nil
+}
