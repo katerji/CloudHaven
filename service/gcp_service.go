@@ -42,8 +42,8 @@ func getUserQuery(userID int) *storage.Query {
 	return &storage.Query{Prefix: fmt.Sprintf("%d/", userID)}
 }
 
-func (service *gcpService) DeleteObject(file model.File) bool {
-	return gcp.GetBucketClient().Object(file.GetPath()).Delete(context.Background()) == nil
+func (service *gcpService) DeleteObject(fileInput model.FileInput) bool {
+	return gcp.GetBucketClient().Object(fileInput.GetPath()).Delete(context.Background()) == nil
 }
 
 func (service *gcpService) CreateObject(fileInput model.FileInput) bool {

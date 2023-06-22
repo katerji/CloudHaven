@@ -7,13 +7,13 @@ import (
 	"io"
 )
 
-const UploadFilePath = "/upload"
+const FilePath = "/file"
 
-type UploadFileResponse struct {
+type FileResponse struct {
 	Success bool `json:"success"`
 }
 
-func UploadFileHandler(c *gin.Context) {
+func FileUploadHandler(c *gin.Context) {
 	err := c.Request.ParseMultipartForm(32 << 20)
 	if err != nil {
 		sendBadRequestWithMessage(c, "File should be less than 32MB")
@@ -35,5 +35,5 @@ func UploadFileHandler(c *gin.Context) {
 		ContentType: fileHeader.Header.Get("Content-Type"),
 	}
 	success := service.GetGcpService().CreateObject(fileInput)
-	sendJSONResponse(c, UploadFileResponse{success})
+	sendJSONResponse(c, FileResponse{success})
 }
