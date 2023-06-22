@@ -61,7 +61,6 @@ func (service *gcpService) CreateObject(fileInput model.FileInput) bool {
 func (service *gcpService) SignObject(fileInput model.FileInput) (string, error) {
 	url, err := gcp.GetStorageClient().Bucket(gcp.GetBucketName()).SignedURL(fileInput.GetPath(), gcp.GetDefaultSignOptions())
 	if err != nil {
-		fmt.Println(fileInput.GetPath())
 		fmt.Println(err)
 		return "", errors.New("could not share file")
 	}
