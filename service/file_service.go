@@ -99,7 +99,6 @@ func (service fileService) SyncUserFiles(userID int) error {
 			continue
 		}
 		if gcsFile.ModifiedOn.After(dbFile.ModifiedOn) {
-			fmt.Println("gcs file is newer than db file")
 			newOrUpdatedFiles = append(newOrUpdatedFiles, gcsFile)
 		}
 	}
