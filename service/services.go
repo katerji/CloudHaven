@@ -10,7 +10,7 @@ var (
 
 func GetUserService() *userService {
 	if userServiceInstance == nil {
-		userServiceInstance = initService()
+		userServiceInstance = initUserService()
 	}
 	return userServiceInstance
 }

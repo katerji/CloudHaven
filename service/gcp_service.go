@@ -8,6 +8,7 @@ import (
 	"github.com/katerji/UserAuthKit/gcp"
 	"github.com/katerji/UserAuthKit/model"
 	"google.golang.org/api/iterator"
+	"strings"
 )
 
 type gcpService struct{}
@@ -33,6 +34,12 @@ func (service *gcpService) ListUserObjects(userID int) ([]model.File, bool) {
 			return files, false
 		}
 		file := model.FromGCSObject(objectAttrs)
+		fileName := strings.ReplaceAll(file.Name, fmt.Sprintf("%d/", userID), "")
+		isBucketObject := fileName == ""
+		if isBucketObject {
+			continue
+		}
+		file.Name = fileName
 		file.OwnerID = userID
 		files = append(files, file)
 	}

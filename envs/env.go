@@ -14,6 +14,7 @@ type Env struct {
 	dbUser          string
 	dbPort          string
 	dbName          string
+	redisURL        string
 }
 
 func newEnv() *Env {
@@ -26,6 +27,7 @@ func newEnv() *Env {
 		dbUser:          os.Getenv("DB_USERNAME"),
 		dbPort:          os.Getenv("DB_PORT"),
 		dbName:          os.Getenv("DB_DATABASE"),
+		redisURL:        os.Getenv("UPSTASH_REDIS_URL"),
 	}
 }
 
@@ -55,6 +57,10 @@ func (env *Env) GetDbPort() string {
 
 func (env *Env) GetDbName() string {
 	return env.dbName
+}
+
+func (env *Env) GetRedisURL() string {
+	return env.redisURL
 }
 
 var instance *Env
