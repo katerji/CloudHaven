@@ -35,7 +35,8 @@ func (service fileService) UpsertUserFiles(files []model.File) bool {
 func (service fileService) GetUserFiles(userID int) []model.File {
 	rows, err := db.GetDbInstance().Query(query.FetchUserFilesQuery, userID)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		return []model.File{}
 	}
 	var files []model.File
 	for rows.Next() {
