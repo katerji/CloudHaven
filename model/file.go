@@ -38,7 +38,13 @@ func FromGCSObject(attrs *storage.ObjectAttrs) File {
 		Name:        attrs.Name,
 		Size:        attrs.Size,
 		ContentType: attrs.ContentType,
-		CreatedOn:   attrs.Created,
-		ModifiedOn:  attrs.Updated,
+		CreatedOn:   GCSTimeToDBTime(attrs.Created),
+		ModifiedOn:  GCSTimeToDBTime(attrs.Updated),
 	}
+}
+
+func GCSTimeToDBTime(gcsTime time.Time) time.Time {
+	timeString := gcsTime.Format("2006-01-02 15:04:05")
+	dbTime, _ := time.Parse("2006-01-02 15:04:05", timeString)
+	return dbTime
 }

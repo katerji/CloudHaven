@@ -14,7 +14,11 @@ type FileListResponse struct {
 
 func FileListHandler(c *gin.Context) {
 	user := getUserFromContext(c)
-	files := service.GetFileService().GetUserFiles(user.ID)
+	files, err := service.GetFileService().GetUserFiles(user.ID)
+	if err != nil {
+		sendErrorMessage(c, err.Error())
+		return
+	}
 	fileOutputs := []model.FileOutput{}
 	for _, file := range files {
 		fileOutputs = append(fileOutputs, file.ToOutput())

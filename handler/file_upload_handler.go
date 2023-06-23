@@ -35,5 +35,6 @@ func FileUploadHandler(c *gin.Context) {
 		ContentType: fileHeader.Header.Get("Content-Type"),
 	}
 	success := service.GetGcpService().CreateObject(fileInput)
+	go service.GetFileService().SyncUserFiles(user.ID)
 	sendJSONResponse(c, FileResponse{success})
 }

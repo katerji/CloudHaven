@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	SyncFilesCronExpression = "@every 5m"
+	SyncFilesCronExpression = "@every 1m"
 	SyncUsersCronExpression = "@every 5s"
 )
 

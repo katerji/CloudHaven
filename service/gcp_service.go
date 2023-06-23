@@ -22,9 +22,9 @@ func (service *gcpService) GetObjectSize(path string) (int64, bool) {
 	return object.Attrs.Size, true
 }
 
-func (service *gcpService) ListUserObjects(userID int) ([]model.File, bool) {
+func (service *gcpService) ListUserObjects(userID int) (map[string]model.File, bool) {
 	objectIterator := gcp.GetBucketClient().Objects(context.Background(), getUserQuery(userID))
-	var files []model.File
+	files := make(map[string]model.File)
 	for {
 		objectAttrs, err := objectIterator.Next()
 		if err == iterator.Done {
@@ -41,7 +41,7 @@ func (service *gcpService) ListUserObjects(userID int) ([]model.File, bool) {
 		}
 		file.Name = fileName
 		file.OwnerID = userID
-		files = append(files, file)
+		files[file.Name] = file
 	}
 	return files, true
 }
