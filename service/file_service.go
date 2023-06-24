@@ -127,3 +127,14 @@ func (service fileService) SyncUserFiles(userID int) error {
 	go service.deleteUserFiles(deletedFiles)
 	return nil
 }
+
+func (service fileService) GetFileOwner(fileID int) (int, error) {
+	row := db.GetDbInstance().QueryRow(query.FetchFileOwnerQuery, fileID)
+	var userID int
+	err := row.Scan(&userID)
+	if err != nil {
+		fmt.Println(err)
+		return 0, errors.New("file not found")
+	}
+	return userID, nil
+}

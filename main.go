@@ -41,9 +41,13 @@ func initWebServer() {
 	api.GET(handler.UserInfoPath, handler.UserInfoHandler)
 
 	api.GET(handler.FileListPath, handler.FileListHandler)
-	api.POST(handler.FilePath, handler.FileUploadHandler)
-	api.DELETE(handler.FilePath, handler.FileDeleteHandler)
-	api.POST(handler.FileShareLinkPath, handler.FileShareLinkHandler)
+
+	fileGroup := api.Group("/file")
+	fileGroup.POST(handler.FilePath, handler.FileUploadHandler)
+	fileGroup.DELETE(handler.FilePath, handler.FileDeleteHandler)
+	fileGroup.POST(handler.FileShareLinkPath, handler.FileShareLinkHandler)
+	fileGroup.GET(handler.FileShareInfoPath, handler.FileShareInfoHandler)
+
 	api.GET(handler.FileRouterPath, handler.FileRouterHandler)
 
 	err := router.Run(":85")

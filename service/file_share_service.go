@@ -110,6 +110,74 @@ func (service fileShareService) IncrementOpenRate(fileShareInput model.FileShare
 	cache.GetRedisClient().Set(context.Background(), model.GetFileShareRedisKey(fileShareInput.ID), fileShare.ToRedisMap(), ttl)
 }
 
+func (service fileShareService) GetFileShares(fileID, userID int) ([]model.FileShare, error) {
+	ownerID, err := GetFileService().GetFileOwner(fileID)
+	if err != nil {
+		return []model.FileShare{}, err
+	}
+	if ownerID != userID {
+		return []model.FileShare{}, errors.New("unauthorized")
+	}
+	fileShares, err := service.fetchFileSharesByID(fileID)
+	if err != nil {
+		return []model.FileShare{}, errors.New("error fetching file shares")
+	}
+	fileSharesMap := make(map[int]model.FileShare)
+	for _, fileShare := range fileShares {
+		fileSharesMap[fileShare.ID] = fileShare
+	}
+	cachedFileShares := service.getFileSharesFromCache(fileShares)
+
+	fileSharesToReturn := cachedFileShares
+	for _, fileShare := range cachedFileShares {
+		if _, ok := fileSharesMap[fileShare.ID]; !ok {
+			fileSharesToReturn = append(fileSharesToReturn, fileShare)
+		}
+	}
+	return fileSharesToReturn, nil
+}
+
+func (service fileShareService) getFileSharesFromCache(fileSharesDB []model.FileShare) []model.FileShare {
+	var fileShares []model.FileShare
+	for _, fileShareDB := range fileSharesDB {
+		fileShareString := cache.GetRedisClient().Get(context.Background(), model.GetFileShareRedisKey(fileShareDB.ID)).Val()
+		if fileShareString == "" {
+			continue
+		}
+		fileShare := model.FileShare{}
+		err := fileShare.Unmarshal([]byte(fileShareString))
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		fileShares = append(fileShares, fileShare)
+	}
+	return fileShares
+}
+
+func (service fileShareService) fetchFileSharesByID(fileID int) ([]model.FileShare, error) {
+	rows, err := db.GetDbInstance().Query(query.FetchFileSharesQuery, fileID)
+	if err != nil {
+		fmt.Println(err)
+		return []model.FileShare{}, errors.New("error fetching file shares")
+	}
+	defer rows.Close()
+
+	var fileShares []model.FileShare
+	for rows.Next() {
+		fileShare := model.FileShare{}
+		var expiresAtUnix int64
+		err := rows.Scan(&fileShare.ID, &fileShare.FileID, &fileShare.URL, &expiresAtUnix, &fileShare.OpenRate)
+		if err != nil {
+			fmt.Println(err)
+			return []model.FileShare{}, errors.New("error fetching file shares")
+		}
+		fileShare.ExpiresAt = time.Unix(expiresAtUnix, 0)
+		fileShares = append(fileShares, fileShare)
+	}
+	return fileShares, nil
+}
+
 func getRedisPrefix() string {
 	sharePrefix := model.FileShareRedisPrefix
 

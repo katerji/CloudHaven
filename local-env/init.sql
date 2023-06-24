@@ -30,9 +30,9 @@ CREATE TABLE `file_share`
     `id`         int      NOT NULL AUTO_INCREMENT,
     `file_id`    int      NOT NULL,
     `url`        text     NOT NULL,
-    `open_rate`  varchar(255)      DEFAULT NULL,
+    `open_rate`  int      NOT NULL DEFAULT '0',
     `expires_at` int      NOT NULL,
     `created_on` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `file_id` (`file_id`,`expires_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
