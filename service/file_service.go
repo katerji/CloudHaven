@@ -96,7 +96,7 @@ func (service fileService) GetFile(fileInput model.FileInput) (model.File, error
 }
 
 func (service fileService) SyncUserFiles(userID int) error {
-	gcsFiles, ok := GetGcpService().ListUserObjects(userID)
+	gcsFiles, ok := GetGCSService().ListUserObjects(userID)
 	if !ok {
 		return errors.New("error syncing user files")
 	}
