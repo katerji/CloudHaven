@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/katerji/UserAuthKit/crons"
 	"github.com/katerji/UserAuthKit/db"
@@ -50,7 +51,8 @@ func initWebServer() {
 
 	api.GET(handler.FileRouterPath, handler.FileRouterHandler)
 
-	err := router.Run(":85")
+	address := getWebServerAddress()
+	err := router.Run(address)
 	if err != nil {
 		panic(err)
 	}
@@ -66,4 +68,8 @@ func startCron() {
 	c.AddFunc(crons.SyncUsersCronExpression, crons.SyncUsers)
 	c.AddFunc(crons.SyncOpenRatesCronExpression, crons.SyncOpenRates)
 	c.Start()
+}
+
+func getWebServerAddress() string {
+	return fmt.Sprintf(":%s", envs.GetInstance().GetWebServerPort())
 }
