@@ -23,5 +23,5 @@ func SyncUsers() {
 }
 
 func SyncOpenRates() {
-	service.GetFileService().SyncOpenRates()
+	service.GetFileShareService().SyncOpenRates()
 }

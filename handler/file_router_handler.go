@@ -24,11 +24,11 @@ func FileRouterHandler(c *gin.Context) {
 	fileShareInput := model.FileShareInput{
 		ID: fileShareID,
 	}
-	url, err := service.GetFileService().GetFileShareURL(fileShareInput)
+	url, err := service.GetFileShareService().GetURL(fileShareInput)
 	if err != nil {
 		sendBadRequestWithMessage(c, err.Error())
 		return
 	}
-	go service.GetFileService().IncrementOpenRate(fileShareInput)
+	go service.GetFileShareService().IncrementOpenRate(fileShareInput)
 	c.Redirect(http.StatusMovedPermanently, url)
 }

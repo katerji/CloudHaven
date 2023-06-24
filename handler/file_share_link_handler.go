@@ -48,7 +48,7 @@ func FileShareLinkHandler(c *gin.Context) {
 		URL:       url,
 		ExpiresAt: gcp.GetDefaultSignExpiry(),
 	}
-	insertId, err := service.GetFileService().InsertFileShare(fileShareInput)
+	insertId, err := service.GetFileShareService().Insert(fileShareInput)
 	if err != nil {
 		sendErrorMessage(c, err.Error())
 		return
@@ -63,7 +63,7 @@ func FileShareLinkHandler(c *gin.Context) {
 		OpenRate:  0,
 		ExpiresAt: fileShareInput.ExpiresAt,
 	}
-	if err = service.GetFileService().SetFileShareCache(fileShare); err != nil {
+	if err = service.GetFileShareService().SetCache(fileShare); err != nil {
 		sendErrorMessage(c, err.Error())
 		return
 	}

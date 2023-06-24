@@ -1,11 +1,12 @@
 package service
 
 var (
-	userServiceInstance *userService
-	authServiceInstance *authService
-	gcpServiceInstance  *gcpService
-	jwtServiceInstance  *jwtService
-	fileServiceInstance *fileService
+	userServiceInstance      *userService
+	authServiceInstance      *authService
+	gcpServiceInstance       *gcpService
+	jwtServiceInstance       *jwtService
+	fileServiceInstance      *fileService
+	fileShareServiceInstance *fileShareService
 )
 
 func GetUserService() *userService {
@@ -41,4 +42,11 @@ func GetFileService() *fileService {
 		fileServiceInstance = &fileService{}
 	}
 	return fileServiceInstance
+}
+
+func GetFileShareService() *fileShareService {
+	if fileShareServiceInstance == nil {
+		fileShareServiceInstance = &fileShareService{}
+	}
+	return fileShareServiceInstance
 }
