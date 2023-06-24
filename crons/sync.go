@@ -7,7 +7,7 @@ import (
 const (
 	SyncFilesCronExpression     = "@every 1m"
 	SyncUsersCronExpression     = "@every 5s"
-	SyncOpenRatesCronExpression = "@every 6h"
+	SyncOpenRatesCronExpression = "@every 1h"
 )
 
 func SyncFiles() {

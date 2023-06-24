@@ -7,7 +7,7 @@ type FileShareRedis struct {
 	FileID    int
 	URL       string
 	OpenRate  int
-	ExpiresAt string
+	ExpiresAt int64
 }
 
 func (f FileShareRedis) MarshalBinary() (data []byte, err error) {

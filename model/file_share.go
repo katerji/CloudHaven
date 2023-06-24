@@ -2,7 +2,6 @@ package model
 
 import (
 	"encoding/json"
-	"github.com/katerji/UserAuthKit/utils"
 	"strconv"
 	"time"
 )
@@ -31,16 +30,8 @@ func (f *FileShare) ToRedisMap() FileShareRedis {
 		FileID:    f.FileID,
 		URL:       f.URL,
 		OpenRate:  f.OpenRate,
-		ExpiresAt: f.ExpiresAt.Format(utils.DateTimeFormat),
+		ExpiresAt: f.ExpiresAt.Unix(),
 	}
-}
-
-func (f *FileShare) FromRedisMap(redisMap map[string]string) {
-	f.ID, _ = strconv.Atoi(redisMap[FileShareRedisKeyID])
-	f.FileID, _ = strconv.Atoi(redisMap[FileShareRedisKeyFileID])
-	f.URL = redisMap[FileShareRedisKeyURL]
-	f.OpenRate, _ = strconv.Atoi(redisMap[FileShareRedisKeyOpenRate])
-	f.ExpiresAt, _ = time.Parse(utils.DateTimeFormat, redisMap[FileShareRedisKeyExpiresAt])
 }
 
 func GetFileShareRedisKey(ShareID int) string {
@@ -52,14 +43,13 @@ func (f *FileShare) Unmarshal(data []byte) error {
 	if err := json.Unmarshal(data, &fields); err != nil {
 		return err
 	}
+
 	f.ID = int(fields[FileShareRedisKeyID].(float64))
 	f.FileID = int(fields[FileShareRedisKeyFileID].(float64))
 	f.URL = fields[FileShareRedisKeyURL].(string)
 	f.OpenRate = int(fields[FileShareRedisKeyOpenRate].(float64))
-	expiresAt, err := time.Parse(utils.DateTimeFormat, fields[FileShareRedisKeyExpiresAt].(string))
-	if err != nil {
-		return err
-	}
-	f.ExpiresAt = expiresAt
+
+	expiresAtInt := int64(int(fields[FileShareRedisKeyExpiresAt].(float64)))
+	f.ExpiresAt = time.Unix(expiresAtInt, 0)
 	return nil
 }

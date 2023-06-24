@@ -171,8 +171,7 @@ func (service fileService) SyncUserFiles(userID int) error {
 }
 
 func (service fileService) InsertFileShare(fileShareInput model.FileShareInput) (int, error) {
-	expiresAtString := fileShareInput.ExpiresAt.Format(utils.DateTimeFormat)
-	insertId, err := db.GetDbInstance().Insert(query.InsertFileShareQuery, fileShareInput.FileID, fileShareInput.URL, expiresAtString)
+	insertId, err := db.GetDbInstance().Insert(query.InsertFileShareQuery, fileShareInput.FileID, fileShareInput.URL, fileShareInput.ExpiresAt.Unix())
 	if err != nil {
 		fmt.Println(err)
 		return 0, errors.New("error sharing file")
@@ -184,6 +183,10 @@ func (service fileService) updateFileShareOpenRate(fileShareInput model.FileShar
 	return db.GetDbInstance().Exec(query.UpdateFileShareOpenRateQuery, fileShareInput.OpenRate, fileShareInput.ID)
 }
 
+func (service fileService) deleteFileShareCache(fileShareID int) bool {
+	return cache.GetRedisClient().Del(context.Background(), model.GetFileShareRedisKey(fileShareID)).Err() == nil
+}
+
 func (service fileService) SyncOpenRates() {
 	fileSharesToSync := service.getFileSharesToSync()
 	for _, fileShare := range fileSharesToSync {
@@ -191,7 +194,12 @@ func (service fileService) SyncOpenRates() {
 			ID:       fileShare.ID,
 			OpenRate: fileShare.OpenRate,
 		}
-		service.updateFileShareOpenRate(fileShareInput)
+		go func() {
+			ok := service.updateFileShareOpenRate(fileShareInput)
+			if ok {
+				service.deleteFileShareCache(fileShareInput.ID)
+			}
+		}()
 	}
 }
 
@@ -201,6 +209,9 @@ func (service fileService) getFileSharesToSync() []model.FileShare {
 
 	var fileSharesToSync []model.FileShare
 	for _, fileShareMap := range fileShareMaps {
+		if fileShareMap == nil {
+			continue
+		}
 		fileShare := model.FileShare{}
 		err := fileShare.Unmarshal([]byte(fileShareMap.(string)))
 		if err != nil {
