@@ -8,20 +8,20 @@ import (
 	"time"
 )
 
-type Client struct {
-	*sql.DB
+type client struct {
+	mysql *sql.DB
 }
 
-var instance *Client
+var instance *client
 
-func GetDbInstance() *Client {
+func GetDbInstance() *client {
 	if instance == nil {
 		instance, _ = getDbClient()
 	}
 	return instance
 }
 
-func getDbClient() (*Client, error) {
+func getDbClient() (*client, error) {
 	dbHost := envs.GetInstance().GetDbHost()
 	dbUser := envs.GetInstance().GetDbUser()
 	dbPort := envs.GetInstance().GetDbPort()
@@ -32,19 +32,19 @@ func getDbClient() (*Client, error) {
 
 	db, err := sql.Open("mysql", dataSourceName)
 	if err != nil {
-		return &Client{}, err
+		return &client{}, err
 	}
 
 	db.SetConnMaxLifetime(time.Minute * 3)
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(10)
-	return &Client{
+	return &client{
 		db,
 	}, nil
 }
 
-func (client *Client) Fetch(query string, args ...any) []any {
-	rows, err := client.Query(query, args...)
+func (client *client) Fetch(query string, args ...any) []any {
+	rows, err := client.mysql.Query(query, args...)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -64,8 +64,8 @@ func (client *Client) Fetch(query string, args ...any) []any {
 	return results
 }
 
-func (client *Client) Insert(query string, args ...any) (int, error) {
-	rows, err := client.Prepare(query)
+func (client *client) Insert(query string, args ...any) (int, error) {
+	rows, err := client.mysql.Prepare(query)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 0, err
@@ -83,8 +83,8 @@ func (client *Client) Insert(query string, args ...any) (int, error) {
 	return int(insertId), nil
 }
 
-func (client *Client) Exec(query string, args ...any) bool {
-	rows, err := client.Prepare(query)
+func (client *client) Exec(query string, args ...any) bool {
+	rows, err := client.mysql.Prepare(query)
 	if err != nil {
 		fmt.Println(err.Error())
 		return false
@@ -95,4 +95,16 @@ func (client *Client) Exec(query string, args ...any) bool {
 		return false
 	}
 	return true
+}
+
+func (client *client) QueryRow(query string, args ...any) *sql.Row {
+	return client.mysql.QueryRow(query, args...)
+}
+
+func (client *client) Query(query string, args ...any) (*sql.Rows, error) {
+	return client.mysql.Query(query, args...)
+}
+
+func (client *client) Ping() error {
+	return client.mysql.Ping()
 }
