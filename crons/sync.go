@@ -5,8 +5,9 @@ import (
 )
 
 const (
-	SyncFilesCronExpression = "@every 1m"
-	SyncUsersCronExpression = "@every 5s"
+	SyncFilesCronExpression     = "@every 1m"
+	SyncUsersCronExpression     = "@every 5s"
+	SyncOpenRatesCronExpression = "@every 6h"
 )
 
 func SyncFiles() {
@@ -19,4 +20,8 @@ func SyncFiles() {
 
 func SyncUsers() {
 	service.GetUserService().SyncUsers()
+}
+
+func SyncOpenRates() {
+	service.GetFileService().SyncOpenRates()
 }

@@ -44,6 +44,7 @@ func initWebServer() {
 	api.POST(handler.FilePath, handler.FileUploadHandler)
 	api.DELETE(handler.FilePath, handler.FileDeleteHandler)
 	api.POST(handler.FileShareLinkPath, handler.FileShareLinkHandler)
+	api.GET(handler.FileRouterPath, handler.FileRouterHandler)
 
 	err := router.Run(":85")
 	if err != nil {
@@ -59,5 +60,6 @@ func startCron() {
 	c := cron.New()
 	c.AddFunc(crons.SyncFilesCronExpression, crons.SyncFiles)
 	c.AddFunc(crons.SyncUsersCronExpression, crons.SyncUsers)
+	c.AddFunc(crons.SyncOpenRatesCronExpression, crons.SyncOpenRates)
 	c.Start()
 }

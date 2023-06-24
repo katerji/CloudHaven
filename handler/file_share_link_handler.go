@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/katerji/UserAuthKit/gcp"
 	"github.com/katerji/UserAuthKit/model"
 	"github.com/katerji/UserAuthKit/service"
 )
@@ -13,7 +14,7 @@ type FileShareLinkRequest struct {
 }
 
 type FileShareLinkResponse struct {
-	URL string `json:"url"`
+	FileShareID int `json:"file_share_id"`
 }
 
 func FileShareLinkHandler(c *gin.Context) {
@@ -32,13 +33,39 @@ func FileShareLinkHandler(c *gin.Context) {
 		Name:    request.Name,
 		OwnerID: user.ID,
 	}
+	file, err := service.GetFileService().GetFile(fileInput)
+	if err != nil {
+		sendBadRequestWithMessage(c, err.Error())
+		return
+	}
 	url, err := service.GetGcpService().SignObject(fileInput)
 	if err != nil {
 		sendBadRequestWithMessage(c, err.Error())
 		return
 	}
+	fileShareInput := model.FileShareInput{
+		FileID:    file.ID,
+		URL:       url,
+		ExpiresAt: gcp.GetDefaultSignExpiry(),
+	}
+	insertId, err := service.GetFileService().InsertFileShare(fileShareInput)
+	if err != nil {
+		sendErrorMessage(c, err.Error())
+		return
+	}
 	response := FileShareLinkResponse{
-		URL: url,
+		FileShareID: insertId,
+	}
+	fileShare := model.FileShare{
+		ID:        insertId,
+		FileID:    file.ID,
+		URL:       url,
+		OpenRate:  0,
+		ExpiresAt: fileShareInput.ExpiresAt,
+	}
+	if err = service.GetFileService().SetFileShareCache(fileShare); err != nil {
+		sendErrorMessage(c, err.Error())
+		return
 	}
 	sendJSONResponse(c, response)
 }

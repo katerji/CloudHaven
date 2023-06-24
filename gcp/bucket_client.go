@@ -29,7 +29,7 @@ func GetBucketName() string {
 func GetDefaultSignOptions() *storage.SignedURLOptions {
 	return &storage.SignedURLOptions{
 		Method:  "GET",
-		Expires: time.Now().Add(24 * time.Hour),
+		Expires: GetDefaultSignExpiry(),
 	}
 }
 
@@ -50,4 +50,8 @@ func initGCS() *storageClient {
 		client:        client,
 		defaultBucket: client.Bucket(defaultBucket),
 	}
+}
+
+func GetDefaultSignExpiry() time.Time {
+	return time.Now().Add(24 * time.Hour)
 }

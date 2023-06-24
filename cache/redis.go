@@ -5,11 +5,11 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-type RedisClient struct {
+type redisClient struct {
 	client *redis.Client
 }
 
-var redisInstance *RedisClient
+var redisInstance *redisClient
 
 func GetRedisClient() *redis.Client {
 	if redisInstance == nil {
@@ -18,13 +18,13 @@ func GetRedisClient() *redis.Client {
 	return redisInstance.client
 }
 
-func initRedis() *RedisClient {
+func initRedis() *redisClient {
 	options, err := redis.ParseURL(envs.GetInstance().GetRedisURL())
 	if err != nil {
 		panic(err)
 	}
 	client := redis.NewClient(options)
-	redisInstance = &RedisClient{
+	redisInstance = &redisClient{
 		client: client,
 	}
 	return redisInstance
