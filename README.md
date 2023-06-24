@@ -50,3 +50,9 @@ To get started with CloudHaven, follow these steps:
 3. Configure the necessary environment variables (check .env.example).
 4. You can use the docker-compose.yml file in local-env directory for your local db.
 5. Build and run the application: `go run main.go`
+
+## Deloyment
+
+CloudHaven is deployed using AWS ECS service.
+
+API: [url](http://18.202.249.247/api)
