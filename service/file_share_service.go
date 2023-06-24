@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"github.com/katerji/UserAuthKit/cache"
@@ -27,7 +26,7 @@ func (service fileShareService) updateOpenRate(fileShareInput model.FileShareInp
 }
 
 func (service fileShareService) deleteCache(fileShareID int) bool {
-	return cache.GetRedisClient().Del(context.Background(), model.GetFileShareRedisKey(fileShareID)).Err() == nil
+	return cache.GetRedisClient().Del(model.GetFileShareRedisKey(fileShareID))
 }
 
 func (service fileShareService) SyncOpenRates() {
@@ -47,8 +46,8 @@ func (service fileShareService) SyncOpenRates() {
 }
 
 func (service fileShareService) getFileSharesToSync() []model.FileShare {
-	keys := cache.GetRedisClient().Keys(context.Background(), getRedisPrefix()).Val()
-	fileShareMaps := cache.GetRedisClient().MGet(context.Background(), keys...).Val()
+	keys := cache.GetRedisClient().Keys(getRedisPrefix())
+	fileShareMaps := cache.GetRedisClient().GetMulti(keys)
 
 	var fileSharesToSync []model.FileShare
 	for _, fileShareMap := range fileShareMaps {
@@ -71,7 +70,7 @@ func (service fileShareService) getFileSharesToSync() []model.FileShare {
 }
 
 func (service fileShareService) GetURL(fileShareInput model.FileShareInput) (string, error) {
-	fileShareMap := cache.GetRedisClient().Get(context.Background(), model.GetFileShareRedisKey(fileShareInput.ID)).Val()
+	fileShareMap := cache.GetRedisClient().Get(model.GetFileShareRedisKey(fileShareInput.ID))
 
 	fileShare := &model.FileShare{}
 	err := fileShare.Unmarshal([]byte(fileShareMap))
@@ -87,27 +86,27 @@ func (service fileShareService) GetURL(fileShareInput model.FileShareInput) (str
 }
 
 func (service fileShareService) SetCache(fileShare model.FileShare) error {
-	err := cache.GetRedisClient().Set(context.Background(), model.GetFileShareRedisKey(fileShare.ID), fileShare.ToRedisMap(), model.FileShareRedisExpiry).Err()
+	err := cache.GetRedisClient().Set(model.GetFileShareRedisKey(fileShare.ID), fileShare.ToRedisMap(), model.FileShareRedisExpiry)
 	if err != nil {
 		fmt.Println(err)
-		return errors.New("error create file share")
+		return errors.New("error creating file share")
 	}
 	return nil
 }
 
-func (service fileShareService) IncrementOpenRate(fileShareInput model.FileShareInput) {
-	fileShareMap := cache.GetRedisClient().Get(context.Background(), model.GetFileShareRedisKey(fileShareInput.ID)).Val()
+func (service fileShareService) IncrementOpenRate(fileShareInput model.FileShareInput) bool {
+	fileShareString := cache.GetRedisClient().Get(model.GetFileShareRedisKey(fileShareInput.ID))
 
 	fileShare := model.FileShare{}
-	err := fileShare.Unmarshal([]byte(fileShareMap))
+	err := fileShare.Unmarshal([]byte(fileShareString))
 	if err != nil {
 		fmt.Println(err)
-		return
+		return false
 	}
 	fileShare.OpenRate++
 
-	ttl := cache.GetRedisClient().TTL(context.Background(), model.GetFileShareRedisKey(fileShareInput.ID)).Val()
-	cache.GetRedisClient().Set(context.Background(), model.GetFileShareRedisKey(fileShareInput.ID), fileShare.ToRedisMap(), ttl)
+	ttl := cache.GetRedisClient().TTL(model.GetFileShareRedisKey(fileShareInput.ID))
+	return cache.GetRedisClient().Set(model.GetFileShareRedisKey(fileShareInput.ID), fileShare.ToRedisMap(), ttl) == nil
 }
 
 func (service fileShareService) GetFileShares(fileID, userID int) ([]model.FileShare, error) {
@@ -140,7 +139,7 @@ func (service fileShareService) GetFileShares(fileID, userID int) ([]model.FileS
 func (service fileShareService) getFileSharesFromCache(fileSharesDB []model.FileShare) []model.FileShare {
 	var fileShares []model.FileShare
 	for _, fileShareDB := range fileSharesDB {
-		fileShareString := cache.GetRedisClient().Get(context.Background(), model.GetFileShareRedisKey(fileShareDB.ID)).Val()
+		fileShareString := cache.GetRedisClient().Get(model.GetFileShareRedisKey(fileShareDB.ID))
 		if fileShareString == "" {
 			continue
 		}
