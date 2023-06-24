@@ -11,9 +11,9 @@ import (
 	"strings"
 )
 
-type gcpService struct{}
+type gcsService struct{}
 
-func (service *gcpService) GetObjectSize(path string) (int64, bool) {
+func (service *gcsService) GetObjectSize(path string) (int64, bool) {
 	object, err := gcp.GetBucketClient().Object(path).NewReader(context.Background())
 	if err != nil {
 		fmt.Println(err)
@@ -22,7 +22,7 @@ func (service *gcpService) GetObjectSize(path string) (int64, bool) {
 	return object.Attrs.Size, true
 }
 
-func (service *gcpService) ListUserObjects(userID int) (map[string]model.File, bool) {
+func (service *gcsService) ListUserObjects(userID int) (map[string]model.File, bool) {
 	objectIterator := gcp.GetBucketClient().Objects(context.Background(), getUserQuery(userID))
 	files := make(map[string]model.File)
 	for {
@@ -50,11 +50,11 @@ func getUserQuery(userID int) *storage.Query {
 	return &storage.Query{Prefix: fmt.Sprintf("%d/", userID)}
 }
 
-func (service *gcpService) DeleteObject(fileInput model.FileInput) bool {
+func (service *gcsService) DeleteObject(fileInput model.FileInput) bool {
 	return gcp.GetBucketClient().Object(fileInput.GetPath()).Delete(context.Background()) == nil
 }
 
-func (service *gcpService) CreateObject(fileInput model.FileInput) bool {
+func (service *gcsService) CreateObject(fileInput model.FileInput) bool {
 	object := gcp.GetBucketClient().Object(fileInput.GetPath())
 	writer := object.NewWriter(context.Background())
 	writer.ContentType = fileInput.ContentType
@@ -65,7 +65,7 @@ func (service *gcpService) CreateObject(fileInput model.FileInput) bool {
 	return writer.Close() == nil
 }
 
-func (service *gcpService) SignObject(fileInput model.FileInput) (string, error) {
+func (service *gcsService) SignObject(fileInput model.FileInput) (string, error) {
 	url, err := gcp.GetStorageClient().Bucket(gcp.GetBucketName()).SignedURL(fileInput.GetPath(), gcp.GetDefaultSignOptions())
 	if err != nil {
 		fmt.Println(err)

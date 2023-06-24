@@ -26,6 +26,6 @@ func FileDeleteHandler(c *gin.Context) {
 		Name:    request.Name,
 		OwnerID: user.ID,
 	}
-	success := service.GetGcpService().DeleteObject(fileInput)
+	success := service.GetGCSService().DeleteObject(fileInput)
 	sendJSONResponse(c, FileResponse{success})
 }

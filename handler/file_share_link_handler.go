@@ -38,7 +38,7 @@ func FileShareLinkHandler(c *gin.Context) {
 		sendBadRequestWithMessage(c, err.Error())
 		return
 	}
-	url, err := service.GetGcpService().SignObject(fileInput)
+	url, err := service.GetGCSService().SignObject(fileInput)
 	if err != nil {
 		sendBadRequestWithMessage(c, err.Error())
 		return
