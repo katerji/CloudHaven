@@ -10,7 +10,21 @@ type userService struct {
 	users map[int]model.User
 }
 
-func initService() *userService {
+func initUserService() *userService {
+	users := fetchUsers()
+	return &userService{
+		users: users,
+	}
+}
+
+func (service *userService) GetUsers() map[int]model.User {
+	return service.users
+}
+func (service *userService) setUsers(users map[int]model.User) {
+	service.users = users
+}
+
+func fetchUsers() map[int]model.User {
 	users := make(map[int]model.User)
 	rows, err := db.GetDbInstance().Query(query.GetUsersQuery)
 	if err != nil {
@@ -24,11 +38,10 @@ func initService() *userService {
 		}
 		users[user.ID] = user
 	}
-	return &userService{
-		users: users,
-	}
+	return users
 }
 
-func (service userService) GetUsers() map[int]model.User {
-	return service.users
+func (service *userService) SyncUsers() {
+	users := fetchUsers()
+	service.users = users
 }

@@ -6,11 +6,11 @@ import (
 	"time"
 )
 
-const bucket = "cloudhaven-storage"
+const defaultBucket = "cloudhaven-storage"
 
 type storageClient struct {
-	client *storage.Client
-	bucket *storage.BucketHandle
+	client        *storage.Client
+	defaultBucket *storage.BucketHandle
 }
 
 var storageInstance *storageClient
@@ -19,17 +19,17 @@ func GetBucketClient() *storage.BucketHandle {
 	if storageInstance == nil {
 		storageInstance = initGCS()
 	}
-	return storageInstance.bucket
+	return storageInstance.defaultBucket
 }
 
 func GetBucketName() string {
-	return bucket
+	return defaultBucket
 }
 
 func GetDefaultSignOptions() *storage.SignedURLOptions {
 	return &storage.SignedURLOptions{
 		Method:  "GET",
-		Expires: time.Now().Add(24 * time.Hour),
+		Expires: GetDefaultSignExpiry(),
 	}
 }
 
@@ -47,7 +47,11 @@ func initGCS() *storageClient {
 	}
 
 	return &storageClient{
-		client: client,
-		bucket: client.Bucket(bucket),
+		client:        client,
+		defaultBucket: client.Bucket(defaultBucket),
 	}
+}
+
+func GetDefaultSignExpiry() time.Time {
+	return time.Now().Add(24 * time.Hour)
 }

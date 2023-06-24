@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/katerji/UserAuthKit/crons"
 	"github.com/katerji/UserAuthKit/db"
@@ -41,9 +40,11 @@ func initWebServer() {
 
 	api.GET(handler.UserInfoPath, handler.UserInfoHandler)
 
+	api.GET(handler.FileListPath, handler.FileListHandler)
 	api.POST(handler.FilePath, handler.FileUploadHandler)
 	api.DELETE(handler.FilePath, handler.FileDeleteHandler)
 	api.POST(handler.FileShareLinkPath, handler.FileShareLinkHandler)
+	api.GET(handler.FileRouterPath, handler.FileRouterHandler)
 
 	err := router.Run(":85")
 	if err != nil {
@@ -57,9 +58,8 @@ func initEnv() {
 
 func startCron() {
 	c := cron.New()
-	err := c.AddFunc(crons.SyncFilesCronExpression, crons.SyncFiles)
-	if err != nil {
-		fmt.Println(err)
-	}
+	c.AddFunc(crons.SyncFilesCronExpression, crons.SyncFiles)
+	c.AddFunc(crons.SyncUsersCronExpression, crons.SyncUsers)
+	c.AddFunc(crons.SyncOpenRatesCronExpression, crons.SyncOpenRates)
 	c.Start()
 }
