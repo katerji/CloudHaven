@@ -7,7 +7,7 @@ import (
 	"github.com/katerji/UserAuthKit/service"
 )
 
-const FileShareLinkPath = "/file/share"
+const FileShareLinkPath = "/share"
 
 type FileShareLinkRequest struct {
 	Name string `json:"name"`

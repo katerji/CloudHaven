@@ -1,13 +1,14 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/katerji/UserAuthKit/model"
 	"github.com/katerji/UserAuthKit/service"
 	"io"
 )
 
-const FilePath = "/file"
+const FilePath = ""
 
 type FileResponse struct {
 	Success bool `json:"success"`
@@ -16,11 +17,17 @@ type FileResponse struct {
 func FileUploadHandler(c *gin.Context) {
 	err := c.Request.ParseMultipartForm(32 << 20)
 	if err != nil {
+		fmt.Println(err)
 		sendBadRequestWithMessage(c, "File should be less than 32MB")
 		return
 	}
 
 	file, fileHeader, err := c.Request.FormFile("file")
+	if err != nil {
+		fmt.Println(err)
+		sendError(c)
+		return
+	}
 	bytes := make([]byte, fileHeader.Size)
 	_, err = io.ReadFull(file, bytes)
 	if err != nil {

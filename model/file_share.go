@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/json"
+	"github.com/katerji/UserAuthKit/utils"
 	"strconv"
 	"time"
 )
@@ -17,11 +18,11 @@ const (
 )
 
 type FileShare struct {
-	ID        int       `redis:"id"`
-	FileID    int       `redis:"file_id"`
-	URL       string    `redis:"url"`
-	OpenRate  int       `redis:"open_rate"`
-	ExpiresAt time.Time `redis:"expires_at"`
+	ID        int
+	FileID    int
+	URL       string
+	OpenRate  int
+	ExpiresAt time.Time
 }
 
 func (f *FileShare) ToRedisMap() FileShareRedis {
@@ -52,4 +53,14 @@ func (f *FileShare) Unmarshal(data []byte) error {
 	expiresAtInt := int64(int(fields[FileShareRedisKeyExpiresAt].(float64)))
 	f.ExpiresAt = time.Unix(expiresAtInt, 0)
 	return nil
+}
+
+func (f *FileShare) ToOutput() FileShareOutput {
+	return FileShareOutput{
+		ID:        f.ID,
+		FileID:    f.FileID,
+		URL:       f.URL,
+		ExpiresAt: f.ExpiresAt.Format(utils.DateTimeFormat),
+		OpenRate:  f.OpenRate,
+	}
 }
